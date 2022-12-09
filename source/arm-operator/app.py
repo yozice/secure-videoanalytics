@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 
 from backend.routes import auth_routes, index_routes
@@ -9,7 +11,7 @@ def app_setup(app: Flask):
     Entry point to the Flask Server application.
     """
     app.secret_key = "secret"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["SQLALCHEMY_DATABASE_URI"]
 
     db.init_app(app)
 
