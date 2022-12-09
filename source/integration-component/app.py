@@ -2,13 +2,7 @@ import os
 
 from flask import Flask
 
-from backend.routes import (
-    auth_routes,
-    gate_control_routes,
-    index_routes,
-    video_analytics_routes,
-)
-from global_variables import db
+from backend.routes import gate_control_routes, video_analytics_routes
 
 
 def app_setup(app: Flask):
@@ -18,13 +12,9 @@ def app_setup(app: Flask):
     app.secret_key = "secret"
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 
-    db.init_app(app)
-
     video_analytics_routes.init_app(app)
     gate_control_routes.init_app(app)
 
-    app.register_blueprint(index_routes.main)
-    app.register_blueprint(auth_routes.auth)
     return app
 
 
