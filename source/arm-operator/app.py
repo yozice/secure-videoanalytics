@@ -8,12 +8,17 @@ from backend.routes import auth_routes, index_routes
 from global_variables import db
 
 
-def app_setup(app: Flask):
+def app_setup():
     """
     Entry point to the Flask Server application.
     """
+    app = Flask(
+        __name__, static_folder="frontend/static", template_folder="frontend/templates"
+    )
     app.secret_key = "secret"
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["SQLALCHEMY_DATABASE_URI"]
+    app.config[
+        "SQLALCHEMY_DATABASE_URI"
+    ] = "sqlite:///db.sqlite"  # os.environ["SQLALCHEMY_DATABASE_URI"]
 
     db.init_app(app)
 
@@ -31,7 +36,9 @@ def app_setup(app: Flask):
     return app
 
 
-app = Flask(
-    __name__, static_folder="frontend/static", template_folder="frontend/templates"
-)
-app_setup(app)
+# app = Flask(
+#     __name__, static_folder="frontend/static", template_folder="frontend/templates"
+# )
+# app_setup(app)
+if __name__ == "__main__":
+    app = app_setup()
