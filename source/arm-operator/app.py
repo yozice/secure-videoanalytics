@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from flask import Flask
 from flask_login import LoginManager
 
@@ -7,8 +8,10 @@ from backend.models import User
 from backend.routes import auth_routes, index_routes
 from global_variables import db
 
+load_dotenv()
 
-def app_setup():
+
+def create_app():
     """
     Entry point to the Flask Server application.
     """
@@ -16,9 +19,7 @@ def app_setup():
         __name__, static_folder="frontend/static", template_folder="frontend/templates"
     )
     app.secret_key = "secret"
-    app.config[
-        "SQLALCHEMY_DATABASE_URI"
-    ] = "sqlite:///db.sqlite"  # os.environ["SQLALCHEMY_DATABASE_URI"]
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["SQLALCHEMY_DATABASE_URI"]
 
     db.init_app(app)
 
@@ -33,12 +34,12 @@ def app_setup():
 
     app.register_blueprint(index_routes.main)
     app.register_blueprint(auth_routes.auth)
+
+    with app.app_context():
+        db.create_all()
+
     return app
 
 
-# app = Flask(
-#     __name__, static_folder="frontend/static", template_folder="frontend/templates"
-# )
-# app_setup(app)
 if __name__ == "__main__":
-    app = app_setup()
+    app = create_app()
