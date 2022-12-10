@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Вход</title>
-    <link rel="stylesheet" href="css/login.css">
-    <script defer src="js/login.js"></script>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <script defer src="../static/js/login.js"></script>
 </head>
 <body>
-<div class="login">
+<div class="login-form">
     <div class="container">
+        <div class="notification is-danger">
+            {{ messages }}
+        </div>
         <div class="auth-buttons">
             <button class="auth" id="submit" onclick="Submit()">Вход</button>
-            <button class="auth" id="login" onclick="Enter()">Регистрация</button>
+            <button class="auth" id="login-mode" onclick="Enter()">Регистрация</button>
         </div>
         <br>
             <div class="input-data">
                 <div class="input-group">
-                    <label for="username" class="label">Логин</label>
-                    <input type="text" id="username" class="input">
+                    <label for="login" class="label">Логин</label>
+                    <input type="text" id="login" class="input">
                     <span class="error-message"></span>
                 </div>
                 <br>
@@ -31,6 +34,9 @@
             </div>
         <form action="main.html" class="loginForm">
         <button class="button" id="registry-entry-btn" type="submit" onclick="checkAll()">Войти</button>
+        <!-- <a href="{{ url_for('main.index') }}" id="registry-entry-btn">
+            Войти
+        </a> -->
         </form>
     </div>
 </div>

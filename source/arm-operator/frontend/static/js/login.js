@@ -1,5 +1,6 @@
 let registrationFlag = false
 let submitFlag = true
+let error = 0
 
 class Login {
   constructor(form, fields) {
@@ -22,27 +23,16 @@ class Login {
       });
       if (error === 0) {
         const password = document.querySelector('#password')
-        const login = document.querySelector('#username')
+        const login = document.querySelector('#login')
 
         let user = {
           password: password.value,
           login: login.value
         }
         if (registrationFlag) {
-          console.log("Can registry")
-          registry(user)
-          this.form.submit();
-          window.location.href = 'http://localhost:63342/%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0/secure-videoanalytics/source/integration-component/source/frontend/main.html?_ijt=rf0588oaeivup39ikvneslds'
-
-          // window.location.href = '../main.html?'
-
-        } else if (submitFlag) {
-          console.log("Can enter")
           signup(user)
-          window.location.href = 'http://localhost:63342/%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0/secure-videoanalytics/source/integration-component/source/frontend/main.html?_ijt=rf0588oaeivup39ikvneslds'
-          // console.log(window.location.href)
-          // this.form.submit();
-          // console.log(window.location.href)
+        } else if (submitFlag) {
+          registry(user)
         }
       }
     });
@@ -80,7 +70,7 @@ class Login {
 function checkAll() {
   const form = document.querySelector(".loginForm");
   if (form) {
-    const fields = ["username", "password"];
+    const fields = ["login", "password"];
     const validator = new Login(form, fields);
 
     if (registrationFlag) {
@@ -96,7 +86,7 @@ function checkAll() {
 
 function clearAll() {
   const password = document.querySelector("#password")
-  const login = document.querySelector("#username")
+  const login = document.querySelector("#login")
   const errorMessages = document.querySelectorAll(".error-message")
 
   errorMessages.forEach(function(errorMessage) {
@@ -109,6 +99,8 @@ function clearAll() {
 
 function setStatus(field, message, status) {
   const errorMessage = field.parentElement.querySelector(".error-message");
+
+  error = 1;
 
   if (status === "success") {
     if (errorMessage) {
@@ -123,38 +115,60 @@ function setStatus(field, message, status) {
 }
 
 async function registry(user) {
-  console.log(user)
-  // let response = await fetch('/login', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json;charset=utf-8'
-  //   },
-  //   body: JSON.stringify(user)
-  // });
-  //
-  // let result = await response.json();
+  await fetch('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(user)
+  })
+  .then(response => {
+    console.log(response.text)
+    if (response.redirected) {
+      window.location.href = response.url
+    }
+  })
+  .catch(error =>{
+    console.log(error)
+  })
 }
 
 async function signup(user) {
-  console.log(user)
-  // let response = await fetch('/signup', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json;charset=utf-8'
-  //   },
-  //   body: JSON.stringify(user)
-  // });
-  //
-  // let result = await response.json();
+  await fetch('/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(user)
+  })
+  .then(response => {
+    console.log(response)
+    if (response.redirected) {
+      window.location.href = response.url
+    }
+  })
+  .catch(error => {
+    console.log(error)
+  })
 }
 
 async function LogOut() {
-   console.log('Log out')
+   await fetch('/logout', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    }
+  })
+  .then(response => {
+    if (response.redirected) {
+      window.location.href = response.url
+    }
+  })
 }
 
 function Submit() {
   const authButton = document.querySelector("#submit")
-  const loginButton = document.querySelector("#login")
+  const loginButton = document.querySelector("#login-mode")
 
   const registryButton = document.querySelector("#registry-entry-btn")
 
@@ -183,7 +197,7 @@ function Enter() {
 
   if (! document.querySelector("#repeat-password")) {
     const authButton = document.querySelector("#submit")
-    const loginButton = document.querySelector("#login")
+    const loginButton = document.querySelector("#login-mode")
 
     const registryButton = document.querySelector("#registry-entry-btn")
 
