@@ -16,10 +16,9 @@ from dotenv import load_dotenv
 
 load_dotenv("source/videoanalytics/.env")
 
-
 sys.path.append("source/videoanalytics")
 
-from backend import factory, loader
+from global_variables import models
 
 
 def draw_prediction(frame, predictions):
@@ -63,10 +62,6 @@ def process_pipeline(url: str, port: int):
     # picam = VideoStream(usePiCamera=True).start()
     time.sleep(2.0)  # allow camera sensor to warm up
 
-    # initialize models
-    models = {}
-    initialize_models(models)
-
     camera = cv2.VideoCapture(url)
 
     while True:
@@ -99,17 +94,6 @@ def process_pipeline(url: str, port: int):
 
     # When everything is done, release the capture
     camera.release()
-
-
-def initialize_models(models):
-    "Initializes models in models dict"
-    with open(os.environ["MODELS_CONFIG_FILE"], "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    loader.load_plugins(data["plugins"])
-    for item in data["models"]:
-        if item["type"] not in models:
-            models[item["type"]] = factory.create(item)
 
 
 def parse_list_arg(str_arg: str):

@@ -1,6 +1,5 @@
 """Represents a basic inference model."""
 
-from enum import Enum
 from typing import Any, List, Protocol, runtime_checkable
 
 import numpy as np

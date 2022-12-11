@@ -61,3 +61,16 @@ def get_open_port():
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
+
+
+def initialize_models():
+    models = {}
+    "Initializes models in models dict"
+    with open(os.environ["MODELS_CONFIG_FILE"], "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    loader.load_plugins(data["plugins"])
+    for item in data["models"]:
+        if item["type"] not in models:
+            models[item["type"]] = factory.create(item)
+            models[item["type"]].load()
