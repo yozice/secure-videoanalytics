@@ -26,7 +26,7 @@ def create_subprocess(request) -> subprocess.Popen:
     return sp
 
 
-def create_pipeline_request(script_path: str, url):
+def create_pipeline_request(script_path: str, url: str):
     """
     Creates request for subprocessing pipeline
     """
@@ -35,7 +35,7 @@ def create_pipeline_request(script_path: str, url):
         "python",
         script_path,
         "-u",
-        json.dumps(url),
+        url,
         # "-l",
     ]
     return request

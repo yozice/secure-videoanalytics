@@ -3,3 +3,7 @@ class InvalidPID(Exception):
 
     def __init__(self, pid: int):
         super().__init__(f"no subprocess with PID {pid}")
+
+
+class UnknownModelType(Exception):
+    """raised when trying to create unregistered model plugin"""
