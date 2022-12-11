@@ -51,7 +51,7 @@ def draw_prediction(frame, prediction):
         )
 
 
-def process_pipeline(url: str, port: str):
+def process_pipeline(url: str, port: int):
     sender = imagezmq.ImageSender(connect_to=port, REQ_REP=False)
     rpi_name = socket.gethostname()  # send RPi hostname with each image
     cap = cv2.VideoCapture(url)
