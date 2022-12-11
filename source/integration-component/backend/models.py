@@ -14,7 +14,7 @@ class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     face_images = db.relationship("FaceImage", backref="person", lazy=True)
-    logins = db.relationship("Login", backref="person", lazy=True)
+    logins = db.relationship("Detection", backref="person", lazy=True)
 
 
 class FaceImage(db.Model):
@@ -27,7 +27,7 @@ class Auto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.String(10))
     model = db.Column(db.String(20))
-    logins = db.relationship("Login", backref="auto", lazy=True)
+    logins = db.relationship("Detection", backref="auto", lazy=True)
 
 
 class VideoStream(db.Model):
@@ -35,7 +35,7 @@ class VideoStream(db.Model):
     name = db.Column(db.String(20))
     url = db.Column(db.String(200))
     port = db.Column(db.String(200))
-    logins = db.relationship("Login", backref="video_stream", lazy=True)
+    detections = db.relationship("Detection", backref="video_stream", lazy=True)
 
 
 class Detection(db.Model):

@@ -1,12 +1,12 @@
-from backend.models import Detection
+from backend.models import Auto
 from backend.token import token_required
 from flask import Blueprint, jsonify, make_response, request
 from global_variables import db
 
-detection_bp = Blueprint("detection", __name__)
+auto_bp = Blueprint("auto", __name__)
 
 
-@detection_bp.route("/add_detection", methods=["POST"])
+@auto_bp.route("/add_detection", methods=["POST"])
 @token_required
 def add_detection():
     data = request.get_json()
@@ -20,7 +20,7 @@ def add_detection():
         return make_response(jsonify({"message": "auto already exists"}), 409)
 
 
-@detection_bp.route("/get_autos", methods=["GET"])
+@auto_bp.route("/get_autos", methods=["GET"])
 @token_required
 def get_autos():
     autos_meta = Auto.query.all()
@@ -28,7 +28,7 @@ def get_autos():
     return jsonify({"names": autos_numbers})
 
 
-@detection_bp.route("/get_auto_info/<auto_number>", methods=["GET"])
+@auto_bp.route("/get_auto_info/<auto_number>", methods=["GET"])
 @token_required
 def get_auto_info(auto_number):
     auto = Auto.query.filter_by(name=auto_number).first()
@@ -38,7 +38,7 @@ def get_auto_info(auto_number):
         return make_response(jsonify({"message": "auto does not exist"}), 409)
 
 
-@detection_bp.route("/rm_auto", methods=["DELETE"])
+@auto_bp.route("/rm_auto", methods=["DELETE"])
 @token_required
 def rm_auto():
     data = request.get_json()

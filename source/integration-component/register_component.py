@@ -45,14 +45,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     with app.app_context():
-        user = Component.query.filter_by(component_name=args.component_name).first()
-        if not user:
-            new_user = Component(
+        component = Component.query.filter_by(
+            component_name=args.component_name
+        ).first()
+        if not component:
+            new_component = Component(
                 public_id=str(uuid.uuid4()), component_name=args.component_name
             )
-            db.session.add(new_user)
+            db.session.add(new_component)
             db.session.commit()
-    token = jwt.encode({"public_id": user.public_id}, app.config["SECRET_KEY"], "HS256")
+    token = jwt.encode(
+        {"public_id": component.public_id}, app.config["SECRET_KEY"], "HS256"
+    )
     output_token_file = f"./tokens/{args.component_name}.txt"
     os.makedirs(os.path.dirname(output_token_file), exist_ok=True)
     with open(output_token_file, "w+") as f:

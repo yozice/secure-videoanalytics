@@ -29,7 +29,7 @@ db.init_app(app)
 
 app.register_blueprint(video_analytics_routes.video_analytics)
 app.register_blueprint(person_routes.person_bp)
-app.register_blueprint(auto_routes.detection_bp)
+app.register_blueprint(auto_routes.auto_bp)
 app.register_blueprint(video_stream_routes.video_stream_bp)
 app.register_blueprint(detection_routes.detection_bp)
 
