@@ -1,5 +1,7 @@
+import requests
 from backend.models import VideoStream
 from backend.token import token_required
+from config import Config
 from flask import Blueprint, jsonify, make_response, request
 from global_variables import db
 
@@ -12,7 +14,9 @@ def add_video_stream():
     data = request.get_json()
     video_stream = VideoStream.query.filter_by(name=data["name"]).first()
     if not video_stream:
-        new_stream = VideoStream(name=data["name"])
+        new_stream = VideoStream(name=data["name"], url=data["url"])
+        resp = requests.post(Config.VIDEO_ANALYTICS_URI, json={data["url"]})
+        new_stream.port = resp.json()["port"]
         db.session.add(new_stream)
         db.session.commit()
         return jsonify({"message": "registered successfully"}), 201
