@@ -21,8 +21,10 @@ sys.path.append("source/videoanalytics")
 from backend import factory, loader
 
 
-def draw_prediction(frame, prediction):
-    for bbox, label in zip(prediction["bbox"], prediction["label"]):
+def draw_prediction(frame, predictions):
+    for prediction in predictions:
+        bbox = prediction["bbox"]
+        label = prediction["label"]
         x1 = int(bbox[0] * frame.shape[0])
         y1 = int(bbox[1] * frame.shape[1])
 
