@@ -47,13 +47,15 @@ def process_pipeline(url: str):
         for (x1, y1, x2, y2) in faces:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
+        # Draw a rectangle around the regestration numbers
         for (x1, y1, x2, y2) in reg_nums:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
         # Display the resulting frame
         # want to write to stream
-
         # cv2.imshow('Video', frame)
+
+        # break somehow
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
