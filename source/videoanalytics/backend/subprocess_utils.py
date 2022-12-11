@@ -4,7 +4,7 @@ import subprocess
 from contextlib import closing
 
 import psutil
-from exceptions import InvalidPID
+from exceptions import InvalidPort
 from global_variables import subprocess_dict
 
 
@@ -44,7 +44,7 @@ def kill_subprocess(port: int) -> str:
     """
     proc = subprocess_dict.get(port)
     if not proc:
-        raise InvalidPID(port)
+        raise InvalidPort(port)
 
     proc.terminate()
     proc.wait()

@@ -22,6 +22,9 @@ from global_variables import models
 
 
 def draw_prediction(frame, predictions):
+    """
+    Draws prediction rectangles and labels on frame image
+    """
     for prediction in predictions:
         bbox = prediction["bbox"]
         label = prediction["label"]
@@ -54,6 +57,9 @@ def draw_prediction(frame, predictions):
 
 
 def collect_detection_object(url, predictions) -> dict:
+    """
+    Collects object despribing result of frame processing
+    """
     result = {}
     result["stream_id"] = url
     result["timestamp"] = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -62,6 +68,11 @@ def collect_detection_object(url, predictions) -> dict:
 
 
 def process_pipeline(url: str, port: int):
+    """
+    Processing video stream from URL
+
+    Streams proceeded output to given port
+    """
     sender = imagezmq.ImageSender(connect_to=port, REQ_REP=False)
     rpi_name = socket.gethostname()  # send RPi hostname with each image
     cap = cv2.VideoCapture(url)
@@ -98,13 +109,24 @@ def process_pipeline(url: str, port: int):
 
         detection_obj = collect_detection_object(url, total_pred)
 
-        requests.post(
-            f"http://{os.environ['INTEGRATION_COMPONENT_URI']}/add_detection",
-            json=json.dumps(detection_obj),
-        )
+        post_add_detection_request(detection_obj)
 
     # When everything is done, release the capture
     camera.release()
+
+
+def post_add_detection_request(detection_obj):
+    """
+    Sends post request to integration component to add detection information
+    """
+    try:
+        requests.post(
+            f"http://{os.environ['INTEGRATION_COMPONENT_URI']}/add_detection",
+            json=json.dumps(detection_obj),
+            timeout=1,
+        )
+    except requests.exceptions.ReadTimeout:
+        pass
 
 
 def parse_list_arg(str_arg: str):
