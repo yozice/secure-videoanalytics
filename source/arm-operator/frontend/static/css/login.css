@@ -95,16 +95,19 @@ h2 {
     justify-content: center;
     align-items: center;
 }
+
 .container-video {
     margin-top: 10px;
     margin-right: 10px;
 }
+
 .navbar-item {
     background-color: steelblue;
     color: white;
     text-decoration: none;
-    margin-right: 15px;
+    margin-right: 40px;
 }
+
 .navbar {
     width: 100%;
     background-color: steelblue;
@@ -114,3 +117,8 @@ h2 {
     font-size: 20px;
 }
 
+.error-server {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: red;
+}

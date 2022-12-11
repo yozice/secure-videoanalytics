@@ -68,6 +68,7 @@ class Login {
 }
 
 function checkAll() {
+  clearServerErrors()
   const form = document.querySelector(".loginForm");
   if (form) {
     const fields = ["login", "password"];
@@ -87,14 +88,24 @@ function checkAll() {
 function clearAll() {
   const password = document.querySelector("#password")
   const login = document.querySelector("#login")
-  const errorMessages = document.querySelectorAll(".error-message")
+  const errorMessagesForInput = document.querySelectorAll(".error-message")
 
-  errorMessages.forEach(function(errorMessage) {
+  errorMessagesForInput.forEach(function(errorMessage) {
     errorMessage.innerHTML = ""
   })
 
   password.value = ""
   login.value = ""
+}
+
+function clearServerErrors() {
+  const errorMessagesFromServers = document.querySelectorAll(".error-server")
+
+  if (errorMessagesFromServers) {
+    errorMessagesFromServers.forEach(error => {
+      error.remove()
+    })
+  }
 }
 
 function setStatus(field, message, status) {
@@ -115,41 +126,36 @@ function setStatus(field, message, status) {
 }
 
 async function registry(user) {
-  await fetch('/login', {
+  const response = await fetch('/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
     },
     body: JSON.stringify(user)
   })
-  .then(response => {
-    console.log(response.text)
-    if (response.redirected) {
-      window.location.href = response.url
-    }
-  })
-  .catch(error =>{
-    console.log(error)
-  })
+
+  const text = await response.json();
+  if (text.status == 'ok') {
+    window.location.href = text.message
+  } else {
+    makeError(text.message)
+  }
 }
 
 async function signup(user) {
-  await fetch('/signup', {
+  const response = await fetch('/signup', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
     },
     body: JSON.stringify(user)
   })
-  .then(response => {
-    console.log(response)
-    if (response.redirected) {
-      window.location.href = response.url
-    }
-  })
-  .catch(error => {
-    console.log(error)
-  })
+  const text = await response.json();
+  if (text.status == 'ok') {
+    window.location.href = text.message
+  } else {
+    makeError(text.message)
+  }
 }
 
 async function LogOut() {
@@ -166,6 +172,20 @@ async function LogOut() {
   })
 }
 
+function makeError(message) {
+  const container = document.querySelector('.input-data')
+
+    const error = document.createElement("div")
+    error.setAttribute('class', 'error-server')
+    error.setAttribute('id', message)
+
+    error.innerHTML = message
+    const sameMessage = document.getElementById(message)
+    if (!sameMessage) {
+      container.appendChild(error)
+    }
+}
+
 function Submit() {
   const authButton = document.querySelector("#submit")
   const loginButton = document.querySelector("#login-mode")
@@ -178,6 +198,7 @@ function Submit() {
   submitFlag = true
 
   clearAll()
+  clearServerErrors()
 
   if (repeatPassword) {
     repeatPassword.remove()
@@ -194,6 +215,7 @@ function Enter() {
   submitFlag = false
 
   clearAll()
+  clearServerErrors()
 
   if (! document.querySelector("#repeat-password")) {
     const authButton = document.querySelector("#submit")

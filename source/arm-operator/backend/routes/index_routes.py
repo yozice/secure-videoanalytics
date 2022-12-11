@@ -10,7 +10,12 @@ def index():
     return render_template("main.html")
 
 
-@main.route("/profile")
+@main.route("/client")
 @login_required
-def profile():
-    return render_template("profile.html", name=current_user.login)
+def client():
+    return render_template("client.html", name=current_user.login)
+
+@main.route("/video")
+@login_required
+def video():
+    return render_template("video.html")
