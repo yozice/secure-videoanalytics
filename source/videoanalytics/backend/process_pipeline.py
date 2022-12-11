@@ -12,31 +12,54 @@ from typing import Any, Optional
 import cv2
 import imagezmq
 from dotenv import load_dotenv
-from imutils.video import VideoStream
 
 load_dotenv("source/videoanalytics/.env")
 
 
 sys.path.append("source/videoanalytics")
 
-
 from backend import factory, loader
 
 
-def gen_frames(camera):
-    while True:
-        success, frame = camera.read()  # read the camera frame
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode(".jpg", frame)
-            frame = buffer.tobytes()
-            yield (
-                b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
-            )  # concat frame one by one and show result
+def draw_prediction(frame, prediction):
+    for bbox, label in zip(prediction["bbox"], prediction["label"]):
+        x1 = int(bbox[0] * frame.shape[0])
+        y1 = int(bbox[1] * frame.shape[1])
+
+        x2 = int(bbox[2] * frame.shape[0])
+        y2 = int(bbox[3] * frame.shape[1])
+        # draw bbox
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+        # draw label
+        cv2.rectangle(
+            frame,
+            (x1, y1 - int(25 / frame.shape[1])),
+            (x2, y1),
+            (0, 0, 255),
+            cv2.FILLED,
+        )
+        font = cv2.FONT_HERSHEY_DUPLEX
+        cv2.putText(
+            frame,
+            label,
+            (x1 + int(6 / frame.shape[0]), y1 - int(6 / frame.shape[1])),
+            font,
+            0.5,
+            (255, 255, 255),
+            1,
+        )
 
 
 def process_pipeline(url: str, port: str):
+    sender = imagezmq.ImageSender(connect_to="tcp://0.0.0.0:5556", REQ_REP=False)
+    rpi_name = socket.gethostname()  # send RPi hostname with each image
+    cap = cv2.VideoCapture("http://192.168.1.3:4747/mjpegfeed?640x480")
+    cap.set(3, 500)
+    cap.set(4, 500)
+    # picam = VideoStream(usePiCamera=True).start()
+    time.sleep(2.0)  # allow camera sensor to warm up
+
     # initialize models
     models = {}
     initialize_models(models)
@@ -45,42 +68,46 @@ def process_pipeline(url: str, port: str):
 
     while True:
         # Capture frame-by-frame
-        ret, frame = camera.read()
+        isSuccess, frame = camera.read()
+
+        # break somehow
+        if not isSuccess:
+            break
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        prediction = models["face_recognizer"].predict(frame)
+        face_prediction = models["face_recognizer"].predict(frame)
+
+        draw_prediction(frame, face_prediction)
 
         # Draw a rectangle around the faces
-        for bbox, label in zip(prediction["bbox"], prediction["label"]):
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        # for bbox, label in zip(prediction["bbox"], prediction["label"]):
+        #     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-            cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 0, 255), cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, label, (x1 + 6, y1 - 6), font, 0.5, (255, 255, 255), 1)
+        #     cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 0, 255), cv2.FILLED)
+        #     font = cv2.FONT_HERSHEY_DUPLEX
+        #     cv2.putText(frame, label, (x1 + 6, y1 - 6), font, 0.5, (255, 255, 255), 1)
 
-        reg_nums = models["reg_num_recognizer"].predict(frame)
+        car_prediction = models["reg_num_recognizer"].predict(frame)
+
+        draw_prediction(frame, car_prediction)
 
         # Draw a rectangle around the regestration numbers
-        for (x1, y1, x2, y2) in reg_nums:
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        # for (x1, y1, x2, y2) in reg_nums:
+        #     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-            cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 255, 0), cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (x1 + 6, y1 - 6), font, 0.5, (0, 0, 0), 1)
+        #     cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 255, 0), cv2.FILLED)
+        #     font = cv2.FONT_HERSHEY_DUPLEX
+        #     cv2.putText(frame, name, (x1 + 6, y1 - 6), font, 0.5, (0, 0, 0), 1)
 
         # Display the resulting frame
         # want to write to stream
 
         # request to integration component
-
-        # break somehow
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
+        sender.send_image(rpi_name, frame)
 
     # When everything is done, release the capture
     camera.release()
-    # cv2.destroyAllWindows()
 
 
 def initialize_models(models):
