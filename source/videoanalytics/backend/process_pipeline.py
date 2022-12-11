@@ -53,6 +53,14 @@ def draw_prediction(frame, predictions):
         )
 
 
+def collect_detection_object(url, predictions) -> dict:
+    result = {}
+    result["stream_id"] = url
+    result["timestamp"] = datetime.now().strftime("%Y%m%d-%H%M%S")
+    result["predictions"] = predictions
+    return result
+
+
 def process_pipeline(url: str, port: int):
     sender = imagezmq.ImageSender(connect_to=port, REQ_REP=False)
     rpi_name = socket.gethostname()  # send RPi hostname with each image
@@ -87,9 +95,12 @@ def process_pipeline(url: str, port: int):
 
         # request to integration component
         total_pred = face_prediction + car_prediction
+
+        detection_obj = collect_detection_object(url, total_pred)
+
         requests.post(
             f"http://{os.environ['INTEGRATION_COMPONENT_URI']}/add_detection",
-            json=json.dumps(total_pred),
+            json=json.dumps(detection_obj),
         )
 
     # When everything is done, release the capture
