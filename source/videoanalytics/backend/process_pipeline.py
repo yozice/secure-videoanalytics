@@ -4,60 +4,72 @@ import json
 import logging
 import os
 import sys
-import time
 from datetime import datetime
 from typing import Any, Optional
 
-sys.path.append("source")
+import cv2
+from dotenv import load_dotenv
+
+load_dotenv("source/videoanalytics/.env")
+
+
+sys.path.append("source/videoanalytics")
 
 
 from backend import factory, loader
-from backend.common.pipeline_utils import create_pipeline, exec_pipeline
 
 
-def process_pipeline(plugin_names: list[str], class_ids: list[Any], path_src: str):
-    """
-    Processes pipeline request
-
-    --------------------------
-    Input:
-        * plugin_names - list of model names
-        * class_ids - list of classes to predict for each model
-        * path_src - path to directory
-    """
-    # create pipeline
-    pipeline = create_pipeline(plugin_names, class_ids)
-
-    # get list of image names
-    try:
-        filenames = list_images(
-            os.path.normpath(f"{app_configuration.DATA_FOLDER}/{path_src}")
-        )
-    except FileNotFoundError as exc:
-        logging.error(exc)
-        return str(exc)
-
+def process_pipeline(url: str):
     # initialize models
     models = {}
-    initialize_models(models, plugin_names)
+    initialize_models(models)
 
-    # exec pipeline
-    timestamp = datetime.utcnow()
+    camera = cv2.VideoCapture(url)
+    # while True:
+    #     okay, frame = camera.read()
+    #     if not okay:
+    #         break
 
-    for pipe_el in pipeline:
-        exec_pipeline(pipe_el, filenames, models, timestamp)
+    #     cv2.imshow("video", frame)
+    #     cv2.waitKey(1)
+    # pass
+    while True:
+        # Capture frame-by-frame
+        ret, frame = camera.read()
 
-    logging.info("pipeline processed")
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        faces = models["face_recognizer"].predict(frame)
+
+        reg_nums = models["reg_num_recognizer"].predict(frame)
+
+        # Draw a rectangle around the faces
+        for (x1, y1, x2, y2) in faces:
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+        for (x1, y1, x2, y2) in reg_nums:
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+
+        # Display the resulting frame
+        # want to write to stream
+
+        # cv2.imshow('Video', frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    # When everything is done, release the capture
+    camera.release()
+    # cv2.destroyAllWindows()
 
 
-def initialize_models(models, plugin_names: list[str]):
+def initialize_models(models):
     "Initializes models in models dict"
-    with open(app_configuration.MODELS_CONFIG_FILE, "r", encoding="utf-8") as file:
+    with open(os.environ["MODELS_CONFIG_FILE"], "r", encoding="utf-8") as file:
         data = json.load(file)
 
     loader.load_plugins(data["plugins"])
     for item in data["models"]:
-        if item["type"] not in models and item["type"] in plugin_names:
+        if item["type"] not in models:
             models[item["type"]] = factory.create(item)
 
 
@@ -73,7 +85,7 @@ def get_log_path(logginq_required: bool) -> Optional[str]:
 
     timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
 
-    filename = f"{app_configuration.LOGS_FOLDER_PATH}/{timestamp}.log"
+    filename = f"{os.environ['LOGS_FOLDER_PATH']}/{timestamp}.log"
 
     return filename
 
@@ -104,8 +116,4 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)s %(message)s",
     )
 
-    start_time = time.time()
-
-    process_pipeline(args.plugin_names, args.class_ids, args.path_src)
-
-    logging.info("--- %s seconds ---", (time.time() - start_time))
+    process_pipeline(args.url)
