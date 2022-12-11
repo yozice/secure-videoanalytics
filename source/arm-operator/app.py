@@ -5,7 +5,7 @@ from flask import Flask
 from flask_login import LoginManager
 
 from backend.models import User
-from backend.routes import auth_routes, index_routes
+from backend.routes import auth_routes, index_routes, client_routes
 from global_variables import db
 
 load_dotenv()
@@ -34,6 +34,7 @@ def create_app():
 
     app.register_blueprint(index_routes.main)
     app.register_blueprint(auth_routes.auth)
+    app.register_blueprint(client_routes.client)
 
     with app.app_context():
         db.create_all()

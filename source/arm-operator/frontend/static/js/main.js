@@ -135,17 +135,28 @@ function showStream() {
     container.appendChild(streamVideo)
 }
 
-function AddPerson() {
+async function AddPerson() {
     const newPersonInput = document.querySelector('#new-person-name')
     const newPhotoInput = document.querySelector('#new-photo')
 
     const newPersonName = newPersonInput.value
     const newPhoto = newPhotoInput.files[0]
-    const person = {
+    const person_data = {
         name: newPersonName,
         photo: newPhoto
     }
     if (newPersonName != '' && newPhoto != undefined) {
+        await fetch("/add_person", {
+            method: 'post',
+            body: person_data
+        }).then(function(response) {
+            if (response.ok) {
+                alert("Успешно добавлен человек")
+            }
+            else {
+                alert("Неудача")
+            }
+        })
         // addNewName(person)
     } else if (newPhoto == undefined) {
         makeError('Добавьте фото', '#new-person-container')
