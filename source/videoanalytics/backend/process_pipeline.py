@@ -52,9 +52,9 @@ def draw_prediction(frame, prediction):
 
 
 def process_pipeline(url: str, port: str):
-    sender = imagezmq.ImageSender(connect_to="tcp://0.0.0.0:5556", REQ_REP=False)
+    sender = imagezmq.ImageSender(connect_to=port, REQ_REP=False)
     rpi_name = socket.gethostname()  # send RPi hostname with each image
-    cap = cv2.VideoCapture("http://192.168.1.3:4747/mjpegfeed?640x480")
+    cap = cv2.VideoCapture(url)
     cap.set(3, 500)
     cap.set(4, 500)
     # picam = VideoStream(usePiCamera=True).start()
@@ -80,31 +80,13 @@ def process_pipeline(url: str, port: str):
 
         draw_prediction(frame, face_prediction)
 
-        # Draw a rectangle around the faces
-        # for bbox, label in zip(prediction["bbox"], prediction["label"]):
-        #     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-        #     cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 0, 255), cv2.FILLED)
-        #     font = cv2.FONT_HERSHEY_DUPLEX
-        #     cv2.putText(frame, label, (x1 + 6, y1 - 6), font, 0.5, (255, 255, 255), 1)
-
         car_prediction = models["reg_num_recognizer"].predict(frame)
 
         draw_prediction(frame, car_prediction)
 
-        # Draw a rectangle around the regestration numbers
-        # for (x1, y1, x2, y2) in reg_nums:
-        #     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-        #     cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 255, 0), cv2.FILLED)
-        #     font = cv2.FONT_HERSHEY_DUPLEX
-        #     cv2.putText(frame, name, (x1 + 6, y1 - 6), font, 0.5, (0, 0, 0), 1)
-
         # Display the resulting frame
-        # want to write to stream
-
-        # request to integration component
         sender.send_image(rpi_name, frame)
+        # request to integration component
 
     # When everything is done, release the capture
     camera.release()
