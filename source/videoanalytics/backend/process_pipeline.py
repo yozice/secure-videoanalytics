@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 import cv2
 import imagezmq
+import requests
 from dotenv import load_dotenv
 
 load_dotenv("source/videoanalytics/.env")
@@ -72,7 +73,7 @@ def process_pipeline(url: str, port: int):
         # Capture frame-by-frame
         isSuccess, frame = camera.read()
 
-        # break somehow
+        # read not succeeded
         if not isSuccess:
             break
 
@@ -80,15 +81,21 @@ def process_pipeline(url: str, port: int):
 
         face_prediction = models["face_recognizer"].predict(frame)
 
-        draw_prediction(frame, face_prediction)
-
         car_prediction = models["reg_num_recognizer"].predict(frame)
+
+        draw_prediction(frame, face_prediction)
 
         draw_prediction(frame, car_prediction)
 
         # Display the resulting frame
         sender.send_image(rpi_name, frame)
+
         # request to integration component
+        total_pred = face_prediction + car_prediction
+        requests.post(
+            f"http://{os.environ['INTEGRATION_COMPONENT_URI']}/add_detection",
+            json=json.dumps(total_pred),
+        )
 
     # When everything is done, release the capture
     camera.release()
