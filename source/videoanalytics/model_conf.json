@@ -1,0 +1,14 @@
+{
+    "plugins": [
+        "backend.models.face_recognizer",
+        "backend.models.reg_num_recognizer"
+    ],
+    "models": [
+        {
+            "weights_path": "weights/face_recognizer.script"
+        },
+        {
+            "weights_path": "weights/reg_num_recognizer.script"
+        }
+    ]
+}
