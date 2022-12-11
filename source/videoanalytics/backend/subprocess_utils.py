@@ -1,5 +1,7 @@
 import json
+import socket
 import subprocess
+from contextlib import closing
 
 import psutil
 from exceptions import InvalidPID
@@ -9,14 +11,6 @@ from global_variables import subprocess_dict
 def create_subprocess(request) -> subprocess.Popen:
     """
     Creates pipeline subprocess
-
-    ---------------------------
-    Input:
-        * script_path - path to subprocess entry point
-        * data - parametrs to be passed to subprocess script
-
-    Returns:
-        * subprocess.Popen object
     """
     sp = subprocess.Popen(
         request,
@@ -26,36 +20,44 @@ def create_subprocess(request) -> subprocess.Popen:
     return sp
 
 
-def create_pipeline_request(script_path: str, url: str):
+def create_pipeline_request(script_path: str, url: str, port: int):
     """
     Creates request for subprocessing pipeline
     """
-
     request = [
         "python",
         script_path,
         "-u",
         url,
+        "-p",
+        port,
         # "-l",
     ]
     return request
 
 
-def kill_subprocess(pid: int) -> str:
+def kill_subprocess(port: int) -> str:
     """
-    Kills subprocess with given PID
+    Kills subprocess with given port
 
     Returns success message if process was killed or status code of process else
     """
-    proc = subprocess_dict.get(pid)
+    proc = subprocess_dict.get(port)
     if not proc:
-        raise InvalidPID(pid)
+        raise InvalidPID(port)
 
     proc.terminate()
     proc.wait()
-    del subprocess_dict[pid]
+    del subprocess_dict[port]
     try:
-        status = psutil.Process(pid).status()
+        status = psutil.Process(port).status()
     except psutil.NoSuchProcess:
         return "success"
     return status
+
+
+def get_open_port():
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(("", 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]

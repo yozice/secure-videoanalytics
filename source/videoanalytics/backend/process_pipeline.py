@@ -36,18 +36,12 @@ def gen_frames(camera):
             )  # concat frame one by one and show result
 
 
-def process_pipeline(url: str):
+def process_pipeline(url: str, port: str):
     # initialize models
     models = {}
     initialize_models(models)
 
     camera = cv2.VideoCapture(url)
-    """
-    for ip camera use 
-        rtsp://username:password@ip_address:554/user=username_password='password'_channel=channel_number_stream=0.sdp' 
-    for local webcam use 
-        cv2.VideoCapture(0)
-    """
 
     while True:
         # Capture frame-by-frame
@@ -121,6 +115,7 @@ def _create_pipeline_parser() -> argparse.ArgumentParser:
     "Returns parser for process_pipeline"
     parser = argparse.ArgumentParser(description="pipiline information")
     parser.add_argument("-u", "--url", type=str, help="stream url")
+    parser.add_argument("-p", "--port", type=int, help="port to output stream")
     parser.add_argument(
         "-l",
         "--log",
@@ -143,4 +138,4 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)s %(message)s",
     )
 
-    process_pipeline(args.url)
+    process_pipeline(args.url, args.port)
