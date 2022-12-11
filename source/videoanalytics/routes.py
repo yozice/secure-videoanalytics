@@ -19,7 +19,7 @@ def predict_stream():
     pipeline_req = create_pipeline_request(
         os.environ["PROCESS_PIPELINE_SCRIPT_PATH"], url
     )
-    proc = create_subprocess(url)
+    proc = create_subprocess(pipeline_req)
     subprocess_dict[proc.pid] = proc
     return jsonify({"pid": proc.pid})
 
