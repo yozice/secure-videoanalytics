@@ -136,25 +136,26 @@ function showStream() {
 }
 
 async function AddPerson() {
-    const newPersonInput = document.querySelector('#new-person-name')
+    const newPersonInput = document.getElementById('new-person-name')
     const newPhotoInput = document.querySelector('#new-photo')
-
     const newPersonName = newPersonInput.value
     const newPhoto = newPhotoInput.files[0]
-    const person_data = {
-        name: newPersonName,
-        photo: newPhoto
-    }
+
+    let data = new FormData()
+    data.append('person_data', JSON.stringify({name: newPersonName}))
+    data.append('file', newPhoto)
+    console.log(...data)
+
     if (newPersonName != '' && newPhoto != undefined) {
         await fetch("/add_person", {
             method: 'post',
-            body: person_data
+            body: data
         }).then(function(response) {
             if (response.ok) {
                 alert("Успешно добавлен человек")
             }
             else {
-                alert("Неудача")
+                alert(response.json())
             }
         })
         // addNewName(person)
