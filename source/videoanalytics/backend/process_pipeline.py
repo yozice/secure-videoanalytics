@@ -3,12 +3,16 @@ import ast
 import json
 import logging
 import os
+import socket
 import sys
+import time
 from datetime import datetime
 from typing import Any, Optional
 
 import cv2
+import imagezmq
 from dotenv import load_dotenv
+from imutils.video import VideoStream
 
 load_dotenv("source/videoanalytics/.env")
 
@@ -51,15 +55,15 @@ def process_pipeline(url: str):
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        faces, name = models["face_recognizer"].predict(frame)
+        prediction = models["face_recognizer"].predict(frame)
 
         # Draw a rectangle around the faces
-        for (x1, y1, x2, y2) in faces:
+        for bbox, label in zip(prediction["bbox"], prediction["label"]):
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
             cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 0, 255), cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (x1 + 6, y1 - 6), font, 0.5, (255, 255, 255), 1)
+            cv2.putText(frame, label, (x1 + 6, y1 - 6), font, 0.5, (255, 255, 255), 1)
 
         reg_nums = models["reg_num_recognizer"].predict(frame)
 
@@ -73,7 +77,8 @@ def process_pipeline(url: str):
 
         # Display the resulting frame
         # want to write to stream
-        # cv2.imshow('Video', frame)
+
+        # request to integration component
 
         # break somehow
         if cv2.waitKey(1) & 0xFF == ord("q"):
