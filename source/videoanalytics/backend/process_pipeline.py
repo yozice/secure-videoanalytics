@@ -19,37 +19,57 @@ sys.path.append("source/videoanalytics")
 from backend import factory, loader
 
 
+def gen_frames(camera):
+    while True:
+        success, frame = camera.read()  # read the camera frame
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode(".jpg", frame)
+            frame = buffer.tobytes()
+            yield (
+                b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
+            )  # concat frame one by one and show result
+
+
 def process_pipeline(url: str):
     # initialize models
     models = {}
     initialize_models(models)
 
     camera = cv2.VideoCapture(url)
-    # while True:
-    #     okay, frame = camera.read()
-    #     if not okay:
-    #         break
+    """
+    for ip camera use 
+        rtsp://username:password@ip_address:554/user=username_password='password'_channel=channel_number_stream=0.sdp' 
+    for local webcam use 
+        cv2.VideoCapture(0)
+    """
 
-    #     cv2.imshow("video", frame)
-    #     cv2.waitKey(1)
-    # pass
     while True:
         # Capture frame-by-frame
         ret, frame = camera.read()
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        faces = models["face_recognizer"].predict(frame)
-
-        reg_nums = models["reg_num_recognizer"].predict(frame)
+        faces, name = models["face_recognizer"].predict(frame)
 
         # Draw a rectangle around the faces
         for (x1, y1, x2, y2) in faces:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
+            cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 0, 255), cv2.FILLED)
+            font = cv2.FONT_HERSHEY_DUPLEX
+            cv2.putText(frame, name, (x1 + 6, y1 - 6), font, 0.5, (255, 255, 255), 1)
+
+        reg_nums = models["reg_num_recognizer"].predict(frame)
+
         # Draw a rectangle around the regestration numbers
         for (x1, y1, x2, y2) in reg_nums:
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            cv2.rectangle(frame, (x1, y1 - 25), (x2, y1), (0, 255, 0), cv2.FILLED)
+            font = cv2.FONT_HERSHEY_DUPLEX
+            cv2.putText(frame, name, (x1 + 6, y1 - 6), font, 0.5, (0, 0, 0), 1)
 
         # Display the resulting frame
         # want to write to stream

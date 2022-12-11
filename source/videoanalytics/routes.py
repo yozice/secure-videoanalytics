@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, render_template, request
 
 from backend.subprocess_utils import (
     create_pipeline_request,
@@ -9,10 +9,10 @@ from backend.subprocess_utils import (
 )
 from global_variables import subprocess_dict
 
-analytics = Blueprint("analytics", __name__)
+app = Blueprint("analytics", __name__)
 
 
-@analytics.route("/predict_stream")
+@app.route("/predict_stream")
 def predict_stream():
     # get video stream url
     url = request.form.get("url")
@@ -24,7 +24,7 @@ def predict_stream():
     return jsonify({"pid": proc.pid})
 
 
-@analytics.route("/kill_process")
+@app.route("/kill_process")
 def kill_process():
     "Kills process with given PID"
     pid = request.form.get("pid")

@@ -17,7 +17,7 @@ def create_app():
     )
     app.secret_key = "secret"
 
-    app.register_blueprint(routes.analytics)
+    app.register_blueprint(routes.app)
 
     return app
 
