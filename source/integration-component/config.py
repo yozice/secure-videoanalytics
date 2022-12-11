@@ -16,9 +16,8 @@ class Config:
     FLASK_RUN_HOST = os.environ.get("FLASK_RUN_HOST")
     FLASK_RUN_PORT = os.environ.get("FLASK_RUN_PORT")
     FLASK_ENV = os.environ.get("FLASK_ENV")
-    CUDA_VISIBLE_DEVICES = os.environ.get("CUDA_VISIBLE_DEVICES")
-    CUDA_DEVICE_ORDER = os.environ.get("CUDA_DEVICE_ORDER")
-    CUDA_LAUNCH_BLOCKING = os.environ.get("CUDA_LAUNCH_BLOCKING")
+    VIDEO_ANALYTICS_URI = os.environ.get("VIDEO_ANALYTICS_URI")
+    GATES_URI = os.environ.get("GATES_URI")
 
 
 class TestingConfig(Config):
