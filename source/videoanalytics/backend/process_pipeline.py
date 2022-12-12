@@ -14,9 +14,9 @@ import imagezmq
 import requests
 from dotenv import load_dotenv
 
-load_dotenv("source/videoanalytics/.env")
+load_dotenv(".env")
 
-sys.path.append("source/videoanalytics")
+sys.path.append("")
 
 from global_variables import models
 
@@ -73,7 +73,9 @@ def process_pipeline(url: str, port: int):
 
     Streams proceeded output to given port
     """
-    sender = imagezmq.ImageSender(connect_to=port, REQ_REP=False)
+    sender = imagezmq.ImageSender(
+        connect_to=f"{os.environ['OUTPUT_STREAM_TCP']}:{port}", REQ_REP=False
+    )
     rpi_name = socket.gethostname()  # send RPi hostname with each image
     cap = cv2.VideoCapture(url)
     cap.set(3, 500)
