@@ -15,8 +15,10 @@ def add_video_stream():
     video_stream = VideoStream.query.filter_by(name=data["name"]).first()
     if not video_stream:
         new_stream = VideoStream(name=data["name"], url=data["url"])
-        # resp = requests.post(Config.VIDEO_ANALYTICS_URI, json={data["url"]})
-        # new_stream.port = resp.json()["port"]
+        resp = requests.post(
+            f"{Config.VIDEO_ANALYTICS_URI}/predict_stream", json={"url": data["url"]}
+        )
+        new_stream.port = resp.json()["port"]
         db.session.add(new_stream)
         db.session.commit()
         return jsonify({"message": "registered successfully"}), 201
@@ -49,7 +51,7 @@ def get_video_stream_info(video_stream_name):
 def get_video_detection_stream_uri(video_stream_name):
     vs = VideoStream.query.filter_by(name=video_stream_name).first()
     if vs:
-        return jsonify({"uri": f"http://0.0.0.0{vs.port}"})
+        return jsonify({"uri": f"tcp://0.0.0.0:{vs.port}"})
     else:
         return make_response(jsonify({"message": "video stream does not exist"}), 409)
 

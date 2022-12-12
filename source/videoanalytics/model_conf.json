@@ -1,16 +1,10 @@
 {
     "plugins": [
-        "backend.models.face_recognizer",
-        "backend.models.reg_num_recognizer"
+        "backend.models.anpr.anpr_model"
     ],
     "models": [
         {
-            "type": "face_recognizer",
-            "weights_path": "weights/face_recognizer.script"
-        },
-        {
-            "type": "reg_num_recognizer",
-            "weights_path": "weights/reg_num_recognizer.script"
+            "type": "anpr_model"
         }
     ]
 }
