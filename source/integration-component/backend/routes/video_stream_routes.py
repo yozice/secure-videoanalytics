@@ -15,8 +15,8 @@ def add_video_stream():
     video_stream = VideoStream.query.filter_by(name=data["name"]).first()
     if not video_stream:
         new_stream = VideoStream(name=data["name"], url=data["url"])
-        resp = requests.post(Config.VIDEO_ANALYTICS_URI, json={data["url"]})
-        new_stream.port = resp.json()["port"]
+        # resp = requests.post(Config.VIDEO_ANALYTICS_URI, json={data["url"]})
+        # new_stream.port = resp.json()["port"]
         db.session.add(new_stream)
         db.session.commit()
         return jsonify({"message": "registered successfully"}), 201
@@ -24,9 +24,9 @@ def add_video_stream():
         return make_response(jsonify({"message": "video stream already exists"}), 409)
 
 
-@video_stream_bp.route("/get_video_stream", methods=["GET"])
+@video_stream_bp.route("/get_video_streams", methods=["GET"])
 @token_required
-def get_video_stream():
+def get_video_streams():
     vs_meta = VideoStream.query.all()
     vs_names = [x.name for x in vs_meta]
     return jsonify({"names": vs_names})
@@ -42,11 +42,23 @@ def get_video_stream_info(video_stream_name):
         return make_response(jsonify({"message": "video stream does not exist"}), 409)
 
 
-@video_stream_bp.route("/rm_video_stream", methods=["DELETE"])
+@video_stream_bp.route(
+    "/get_video_detection_stream_uri/<video_stream_name>", methods=["GET"]
+)
 @token_required
-def rm_video_stream():
+def get_video_detection_stream_uri(video_stream_name):
+    vs = VideoStream.query.filter_by(name=video_stream_name).first()
+    if vs:
+        return jsonify({"uri": f"http://0.0.0.0{vs.port}"})
+    else:
+        return make_response(jsonify({"message": "video stream does not exist"}), 409)
+
+
+@video_stream_bp.route("/rm_video_stream/<id>", methods=["DELETE"])
+@token_required
+def rm_video_stream(id):
     data = request.get_json()
-    vs = VideoStream.query.filter_by(id=int(data["id"])).delete()
+    vs = VideoStream.query.filter_by(id=int(id)).delete()
     if vs:
         db.session.commit()
         return jsonify({"message": "successfully removed from database"}), 201

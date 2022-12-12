@@ -37,6 +37,8 @@ def add_person():
 
         # commit
         db.session.commit()
+
+        # передать в видеоаналитику
         return jsonify({"message": "registered successfully"}), 201
     else:
         return make_response(jsonify({"message": "person already exists"}), 409)
@@ -60,11 +62,11 @@ def get_person_info(person_name):
         return make_response(jsonify({"message": "person does not exist"}), 409)
 
 
-@person_bp.route("/rm_person", methods=["DELETE"])
+@person_bp.route("/rm_person/<id>", methods=["DELETE"])
 @token_required
-def rm_person():
+def rm_person(id):
     data = request.get_json()
-    person = Person.query.filter_by(id=int(data["id"])).delete()
+    person = Person.query.filter_by(id=int(id)).delete()
     if person:
         db.session.commit()
         return jsonify({"message": "successfully removed from database"}), 201
