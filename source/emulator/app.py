@@ -35,7 +35,9 @@ import imagezmq
 
 sender = imagezmq.ImageSender(connect_to="tcp://0.0.0.0:5556", REQ_REP=False)
 rpi_name = socket.gethostname()  # send RPi hostname with each image
-cap = cv2.VideoCapture("./examples/image01.jpg")
+cap = cv2.VideoCapture("./examples/video01.mp4")
+# cap = cv2.VideoCapture("./examples/image02.png")
+
 cap.set(3, 500)
 cap.set(4, 500)
 # picam = VideoStream(usePiCamera=True).start()
@@ -43,6 +45,8 @@ time.sleep(2.0)  # allow camera sensor to warm up
 while True:  # send images as stream until Ctrl-C
     isSuccess, frame = cap.read()
     if not isSuccess:
-        cap = cv2.VideoCapture("./examples/image01.jpg")
+        cap = cv2.VideoCapture("./examples/video01.mp4")
+        # cap = cv2.VideoCapture("./examples/image02.png")
+
         isSuccess, frame = cap.read()
     sender.send_image(rpi_name, frame)

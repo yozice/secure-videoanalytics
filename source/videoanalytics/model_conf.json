@@ -1,10 +1,14 @@
 {
     "plugins": [
-        "backend.models.anpr.anpr_model"
+        "backend.models.anpr.anpr_model",
+        "backend.models.face_recognition.face_rec_model"
     ],
     "models": [
         {
             "type": "anpr_model"
+        },
+        {
+            "type": "face_recognition"
         }
     ]
 }

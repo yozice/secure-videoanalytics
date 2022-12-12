@@ -5,8 +5,14 @@ function addDeleteBtn(infoContainer, value, formToHide) {
     deleteButton.style.marginBottom = '10px'
     deleteButton.style.marginTop = '5px'
     deleteButton.innerHTML = "Удалить"
-    deleteButton.addEventListener('click', deleteCarFromDiv)
-    deleteButton.value = value
+    if (formToHide === '#info-car') {
+        deleteButton.addEventListener('click', deleteCar)
+    } else if (formToHide === '#info-face') {
+        deleteButton.addEventListener('click', deletePerson)
+    } else if (formToHide === '#info-stream') {
+        deleteButton.addEventListener('click', deleteStream)
+    }
+    deleteButton.value = value 
     deleteButton.formToHide = formToHide
     deleteButton.style.fontSize = '13px'
 
@@ -27,6 +33,20 @@ function makeError(message, containerId) {
       }
 }
 
+<<<<<<< HEAD
+function addShowStreamBtn(infoContainer, value) {
+    const showButton = document.createElement("button")
+
+    showButton.className = 'new-obj'
+    showButton.style.marginBottom = '10px'
+    showButton.style.marginTop = '5px'
+    showButton.innerHTML = "Отобразить поток"
+    showButton.addEventListener('click', showStream)
+    showButton.value = value
+    showButton.style.fontSize = '13px'
+
+    infoContainer.appendChild(showButton)
+=======
 function addShowStreamBtn(infoContainer) {
     const deleteButton = document.createElement("button")
 
@@ -38,6 +58,7 @@ function addShowStreamBtn(infoContainer) {
     deleteButton.style.fontSize = '13px'
 
     infoContainer.appendChild(deleteButton)
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
 }
 
 async function GetFaceInfo(value) {
@@ -52,10 +73,21 @@ async function GetFaceInfo(value) {
         .then((data) => {
         personId = data['id']
         personName = data['name']
+<<<<<<< HEAD
+        // personPhoto = data['photo']
+=======
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
     })
         
     infoContainer.innerHTML += personId 
     infoContainer.innerHTML += personName 
+<<<<<<< HEAD
+    // const img = document.createElement('img')
+    // img.src = personPhoto
+    // img.height = 'auto'
+    // img.width = '100%'
+=======
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
 
     addDeleteBtn(infoContainer, value, "#info-face")
 }
@@ -89,6 +121,51 @@ function GetStreamInfo(value) {
     infoContainer.style.display = 'inline-block'
     infoContainer.innerHTML = value
 
+<<<<<<< HEAD
+    // const onAnalitics = document.createElement('input')
+    // const offAnalitics = document.createElement('input')
+
+    // const onAnaliticsLabel = document.createElement('label')
+    // const offAnaliticsLabel = document.createElement('label')
+
+    // const onAnaliticsP = document.createElement('p')
+    // const offAnaliticsP = document.createElement('p')
+
+    // offAnaliticsP.style.margin = '0'
+    // onAnaliticsP.style.margin = '0'
+
+    // onAnalitics.name = 'analitics'
+    // offAnalitics.name = 'analitics'
+
+    // onAnalitics.id = 'on-analitics'
+    // offAnalitics.id = 'off-analitics'
+
+    // onAnaliticsLabel.setAttribute('for', 'on-analitics')
+    // offAnaliticsLabel.setAttribute('for', 'off-analitics')
+
+    // offAnaliticsLabel.innerHTML = 'Включить аналитику'
+    // onAnaliticsLabel.innerHTML = 'Выключить аналитику'
+
+    // offAnaliticsLabel.style.paddingLeft = '5px'
+    // onAnaliticsLabel.style.paddingLeft = '5px'
+
+    // onAnalitics.type = 'radio'
+    // offAnalitics.type = 'radio'
+
+    // onAnalitics.addEventListener('change', setAnaliticsMode)
+    // offAnalitics.addEventListener('change', setAnaliticsMode)
+
+    // offAnaliticsP.appendChild(offAnalitics)
+    // offAnaliticsP.appendChild(offAnaliticsLabel)
+
+    // onAnaliticsP.appendChild(onAnalitics)
+    // onAnaliticsP.appendChild(onAnaliticsLabel)
+
+    // infoContainer.appendChild(onAnaliticsP)
+    // infoContainer.appendChild(offAnaliticsP)
+
+    addShowStreamBtn(infoContainer, value)
+=======
     const onAnalitics = document.createElement('input')
     const offAnalitics = document.createElement('input')
 
@@ -132,6 +209,7 @@ function GetStreamInfo(value) {
     infoContainer.appendChild(offAnaliticsP)
 
     addShowStreamBtn(infoContainer)
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
     addDeleteBtn(infoContainer, value, "#info-stream")
 }
 
@@ -143,6 +221,140 @@ function setAnaliticsMode(evt) {
     }
 }
 
+<<<<<<< HEAD
+async function deletePerson(evt) {
+    const personToDelete = evt.currentTarget.value
+    const formToHide = evt.currentTarget.formToHide
+    
+    let personId;
+
+    const response = await fetch('/get_person_info/' + personToDelete, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const text = await response.json();
+    personId = text.id
+
+    if (personId != undefined) {
+        await fetch('/rm_person/' + personId, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+        }).then(function(response) {
+        console.log(response)
+        if(response.ok) {
+            const form = document.querySelector(formToHide)
+            const optToDelete = document.querySelector('#'+personToDelete)
+
+            optToDelete.remove()
+            form.style.display = 'none'
+        } else {
+            alert(response.json().message)
+        }
+        })
+    }
+}
+
+async function deleteCar(evt) {
+    const carToDelete = evt.currentTarget.value
+    const formToHide = evt.currentTarget.formToHide
+    
+    let carId;
+
+    const response = await fetch('/get_auto_info/' + carToDelete, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const text = await response.json();
+    carId = text.id
+    
+    if (carId != undefined) {
+        await fetch('/rm_auto/' + carId, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+        }).then(function(response) {
+        console.log(response)
+        if(response.ok) {
+            const form = document.querySelector(formToHide)
+            const optToDelete = document.querySelector('#'+carToDelete)
+
+            optToDelete.remove()
+            form.style.display = 'none'
+        } else {
+            alert(response.json().message)
+        }
+        })
+    }
+}
+
+async function deleteStream(evt) {
+    const streamToDelete = evt.currentTarget.value
+    const formToHide = evt.currentTarget.formToHide
+    
+    // console.log(streamToDelete)
+    let streamId;
+
+    const response = await fetch('/get_video_stream_info/' + streamToDelete, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const text = await response.json();
+    streamId = text.id
+    
+    if (streamId != undefined) {
+        await fetch('/rm_video_stream/' + streamId, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+        }).then(function(response) {
+        console.log(response)
+        if(response.ok) {
+            const form = document.querySelector(formToHide)
+            const optToDelete = document.querySelector('#'+streamToDelete)
+
+            optToDelete.remove()
+            form.style.display = 'none'
+        } else {
+            alert(response.json().message)
+        }
+        })
+    }
+}
+
+async function showStream(evt) {
+    const stream = evt.currentTarget.value
+    const container = document.querySelector('#info-stream')
+
+    let streamUrl
+
+    const response = await fetch('/get_video_stream_info/' + stream, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const streamInfo = await response.json();
+    streamUrl = streamInfo.url   
+
+    const streamVideoElement = document.createElement('img')
+    
+    streamVideoElement.src = `/online_stream/${stream}`
+    streamUrl.autoplay = false
+    streamUrl.controls = true
+    streamUrl.height = 240
+    streamUrl.width = 320
+    container.appendChild(streamVideoElement)
+=======
 function deleteCarFromDiv(evt) {
     const carToDelete = evt.currentTarget.value
     const formToHide = evt.currentTarget.formToHide
@@ -159,6 +371,7 @@ function showStream() {
     const streamVideo = document.createElement('video')
 
     container.appendChild(streamVideo)
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
 }
 
 async function AddPerson() {
@@ -236,6 +449,8 @@ async function AddStream() {
         })
     }
 }
+<<<<<<< HEAD
+=======
 
 // добавить новый видеопоток
 
@@ -319,6 +534,7 @@ async function AddStream() {
 //       })
 // }
 
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
 // включить режим аналитики
 
 // async function onAnalitics() {

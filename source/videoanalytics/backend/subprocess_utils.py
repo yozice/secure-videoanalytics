@@ -12,16 +12,15 @@ def create_subprocess(request) -> subprocess.Popen:
     """
     Creates pipeline subprocess
     """
-    # sp = subprocess.Popen(
-    #     request,
-    #     stdout=subprocess.PIPE,
-    #     stderr=subprocess.PIPE,
-    # )
-    sp = subprocess.Popen(request)
+    sp = subprocess.Popen(
+        request,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     return sp
 
 
-def create_pipeline_request(script_path: str, url: str, port: str):
+def create_pipeline_request(script_path: str, url: str, port: int):
     """
     Creates request for subprocessing pipeline
     """

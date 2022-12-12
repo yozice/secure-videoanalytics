@@ -28,7 +28,8 @@ def add_video_stream():
 @login_required
 def get_video_stream_info(video_stream_name):
     vs_info = requests.get(
-        f"{Config.IC_URI}/get_video_stream_info", headers=get_common_headers()
+        f"{Config.IC_URI}/get_video_stream_info/{video_stream_name}",
+        headers=get_common_headers(),
     ).json()
 
     if vs_info:
@@ -55,10 +56,16 @@ def rm_video_stream(id):
 @video_stream.route("/online_stream/<video_stream_name>", methods=["GET"])
 @login_required
 def online_stream(video_stream_name):
+<<<<<<< HEAD
     uri = requests.get(
         f"{Config.IC_URI}/get_video_detection_stream_uri/{video_stream_name}",
         headers=get_common_headers(),
     ).json()["uri"]
+=======
+    uri = requests.get(f"get_video_detection_stream_uri/{video_stream_name}").json()[
+        "uri"
+    ]
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
     return Response(
         sendImagesToWeb(uri), mimetype="multipart/x-mixed-replace; boundary=frame"
     )

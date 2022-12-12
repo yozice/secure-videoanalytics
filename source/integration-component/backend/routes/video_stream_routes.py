@@ -51,7 +51,11 @@ def get_video_stream_info(video_stream_name):
 def get_video_detection_stream_uri(video_stream_name):
     vs = VideoStream.query.filter_by(name=video_stream_name).first()
     if vs:
+<<<<<<< HEAD
         return jsonify({"uri": f"tcp://0.0.0.0:{vs.port}"})
+=======
+        return jsonify({"uri": f"http://0.0.0.0{vs.port}"})
+>>>>>>> c76a4e1b1e73a0cb4b28eb1ebb593ac4b3f0219f
     else:
         return make_response(jsonify({"message": "video stream does not exist"}), 409)
 
