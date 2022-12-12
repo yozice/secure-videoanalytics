@@ -40,20 +40,46 @@ function addShowStreamBtn(infoContainer) {
     infoContainer.appendChild(deleteButton)
 }
 
-function GetFaceInfo(value) {
+async function GetFaceInfo(value) {
     const infoContainer = document.querySelector("#info-face")
     
     infoContainer.style.display = 'inline-block'
     infoContainer.innerHTML = value
+    let personId;
+    let personName;
+    await fetch(`/get_person_info/${value}`)
+        .then((response) => response.json())
+        .then((data) => {
+        personId = data['id']
+        personName = data['name']
+    })
+        
+    infoContainer.innerHTML += personId 
+    infoContainer.innerHTML += personName 
 
     addDeleteBtn(infoContainer, value, "#info-face")
 }
 
-function GetCarInfo(value) {
+async function GetCarInfo(value) {
     const infoContainer = document.querySelector("#info-car")
 
     infoContainer.style.display = 'inline-block'
     infoContainer.innerHTML = value
+
+    let autoId;
+    let autoNumber;
+    let autoModel;
+
+    await fetch(`/get_auto_info/${value}`)
+        .then((response) => response.json())
+        .then((data) => {
+            autoId = data['id']
+            autoNumber = data['number']
+            autoModel = data['model']
+        })
+    infoContainer.innerHTML += autoId 
+    infoContainer.innerHTML += autoNumber 
+    infoContainer.innerHTML += autoModel
 
     addDeleteBtn(infoContainer, value, "#info-car")
 }
@@ -155,7 +181,7 @@ async function AddPerson() {
                 alert("Успешно добавлен человек")
             }
             else {
-                alert(response.json())
+                alert(response.json().message)
             }
         })
         // addNewName(person)
@@ -166,25 +192,48 @@ async function AddPerson() {
     }
 }
 
-function AddCar() {
-    const newCarInput = document.querySelector('#new-car')
+async function AddCar() {
+    const newCarNumber = document.getElementById('new-car-number').value
+    const newCarModel = document.getElementById('new-car-model').value
 
-    const newCar = newCarInput.value
-    if (newCar != '') {
-        // addNewName(newCar)
+    if (newCarNumber != '' && newCarModel != '') {
+        await fetch("/add_auto", {
+            method: "post",
+            headers: {"content-type": 'application/json'},
+            body: JSON.stringify({number: newCarNumber, model: newCarModel})
+        }).then(function(response) {
+            if (response.ok) {
+                alert("Успешно добавлено авто")
+            }
+            else {
+                alert(response.json().message)
+            }
+        })       
     } else {
-        makeError('Введите машину', '#new-car-container')
+        makeError('Введите данные автомобиля', '#new-car-container')
     }
 }
 
-function AddStream() {
-    const newStreamInput = document.querySelector('#new-stream-input')
+async function AddStream() {
+    const newStreamName = document.getElementById('new-stream-name').value
+    const newStreamUrl = document.getElementById('new-stream-url').value
 
-    const newStream = newStreamInput.value
-    if (newStream === '') {
-        makeError('Введите ссылку для потока', '#new-stream-container')
+    if (newStreamName === '' && newStreamUrl === '') {
+        makeError('Введите данные о потоке для потока', '#new-stream-container')
     } else {
         // addNewStream(stream)
+        await fetch("/add_video_stream", {
+            method: "post",
+            headers: {"content-type": 'application/json'},
+            body: JSON.stringify({name: newStreamName, url: newStreamUrl})
+        }).then((response) => {
+            if (response.ok) {
+                alert("Успешно добавлен поток")
+            }
+            else {
+                alert("Не удалось добавить поток")
+            }
+        })
     }
 }
 

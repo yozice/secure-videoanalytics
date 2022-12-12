@@ -12,15 +12,6 @@
                 {{ face }}
             </option>
             {% endfor %}
-            <!-- <option class="face" id="Ivan" value="Ivan">
-                Ivan
-            </option>
-            <option class="face" id="Petr" value="Petr">
-                Petr
-            </option>
-            <option class="face" id="Anna" value="Anna">
-                Anna
-            </option> -->
         </select>
     </div>
     <div class="col-sm-4 text-center" id="info-face" style="display:none; margin-left: 20px;margin-top: 45px;">
@@ -67,7 +58,10 @@
 <div class="row" style="margin-bottom: 10px;">
     <div class="col-md-9 offset-md-2" style="width: 30%; padding: 0;" id="new-car-container">
         <p style="font-size: 20px; margin-bottom: 0;">Добавить машину</p>
-        <input type="text" style="width:100%" id="new-car" />
+        <label for="new-car-number">Номер машины</label>
+        <input type="text" style="width:100%" id="new-car-number" />
+        <label for="new-car-model">Модель автомобиля</label>
+        <input type="text" style="width:100%" id="new-car-model" />
     </div>
 </div>
 <div class="col-md-9 offset-sm-2" id="add-new-car" style="padding: 0;">
