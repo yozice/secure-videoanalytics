@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row" id="container-faces" style="margin-bottom: 10px; margin-top: 20px;">
+    <div class="col-md-9 offset-md-2" style="width: 30%; padding: 0;">
+        <p style="font-size: 20px;">
+            Список людей
+        </p>
+        <select multiple="multiple" class="select" id="face-select" onchange="GetFaceInfo(this.value)">
+            {% for face in faces %}
+            <option class="face" id="{{ face }}" value="{{ face }}">
+                {{ face }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-4 text-center" id="info-face" style="display:none; margin-left: 20px;margin-top: 45px;">
+    </div>
+</div>
+<div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-9 offset-md-2" id="new-person-container" style="width: 30%; padding: 0;">
+        <p style="font-size: 20px; margin-bottom: 0;">Добавить пользователя</p>
+        <input type="text" style="width:100%" id="new-person-name" />
+    </div>
+</div>
+
+<div class="col-md-9 offset-sm-2" id="add-new-person" style="padding: 0;">
+    <input type="file" id="new-photo" style="margin-bottom: 10px;" />
+    <button class="new-obj" onclick="AddPerson()">Добавить персону</button>
+</div>
+
+<div class="row" id="container-car-numbers">
+    <div class="col-md-9 offset-md-2" style="width: 30%; padding: 0; margin-top: 20px;">
+        <p style="font-size: 20px;">
+            Список номеров машин
+        </p>
+        <select multiple="multiple" class="select" id="car-select" onchange="GetCarInfo(this.value)">
+            {% for car in cars %}
+            <option class="car" id="{{ car }}" value="{{ car }}">
+                {{ car }}
+            </option>
+            {% endfor %}
+            <!-- <option class="car" id="12345" value="12345">
+                12345
+            </option>
+            <option class="car" id="67890" value="67890">
+                67890
+            </option>
+            <option class="car" id="abcd" value="abcd">
+                abcd
+            </option> -->
+        </select>
+    </div>
+    <div class="col-sm-4 text-center" id="info-car" style="display:none; margin-left: 20px; margin-top: 65px;">
+    </div>
+</div>
+
+<div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-9 offset-md-2" style="width: 30%; padding: 0;" id="new-car-container">
+        <p style="font-size: 20px; margin-bottom: 0;">Добавить машину</p>
+        <label for="new-car-number">Номер машины</label>
+        <input type="text" style="width:100%" id="new-car-number" />
+        <label for="new-car-model">Модель автомобиля</label>
+        <input type="text" style="width:100%" id="new-car-model" />
+    </div>
+</div>
+<div class="col-md-9 offset-sm-2" id="add-new-car" style="padding: 0;">
+    <button class="new-obj" onclick="AddCar()">Добавить</button>
+</div>
+{% endblock %}
