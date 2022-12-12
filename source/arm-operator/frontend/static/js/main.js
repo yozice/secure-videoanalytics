@@ -5,8 +5,14 @@ function addDeleteBtn(infoContainer, value, formToHide) {
     deleteButton.style.marginBottom = '10px'
     deleteButton.style.marginTop = '5px'
     deleteButton.innerHTML = "Удалить"
-    deleteButton.addEventListener('click', deleteCarFromDiv)
-    deleteButton.value = value
+    if (formToHide === '#info-car') {
+        deleteButton.addEventListener('click', deleteCar)
+    } else if (formToHide === '#info-face') {
+        deleteButton.addEventListener('click', deletePerson)
+    } else if (formToHide === '#info-stream') {
+        deleteButton.addEventListener('click', deleteStream)
+    }
+    deleteButton.value = value 
     deleteButton.formToHide = formToHide
     deleteButton.style.fontSize = '13px'
 
@@ -27,17 +33,18 @@ function makeError(message, containerId) {
       }
 }
 
-function addShowStreamBtn(infoContainer) {
-    const deleteButton = document.createElement("button")
+function addShowStreamBtn(infoContainer, value) {
+    const showButton = document.createElement("button")
 
-    deleteButton.className = 'new-obj'
-    deleteButton.style.marginBottom = '10px'
-    deleteButton.style.marginTop = '5px'
-    deleteButton.innerHTML = "Отобразить поток"
-    deleteButton.addEventListener('click', showStream)
-    deleteButton.style.fontSize = '13px'
+    showButton.className = 'new-obj'
+    showButton.style.marginBottom = '10px'
+    showButton.style.marginTop = '5px'
+    showButton.innerHTML = "Отобразить поток"
+    showButton.addEventListener('click', showStream)
+    showButton.value = value
+    showButton.style.fontSize = '13px'
 
-    infoContainer.appendChild(deleteButton)
+    infoContainer.appendChild(showButton)
 }
 
 async function GetFaceInfo(value) {
@@ -52,10 +59,15 @@ async function GetFaceInfo(value) {
         .then((data) => {
         personId = data['id']
         personName = data['name']
+        // personPhoto = data['photo']
     })
         
     infoContainer.innerHTML += personId 
     infoContainer.innerHTML += personName 
+    // const img = document.createElement('img')
+    // img.src = personPhoto
+    // img.height = 'auto'
+    // img.width = '100%'
 
     addDeleteBtn(infoContainer, value, "#info-face")
 }
@@ -89,49 +101,49 @@ function GetStreamInfo(value) {
     infoContainer.style.display = 'inline-block'
     infoContainer.innerHTML = value
 
-    const onAnalitics = document.createElement('input')
-    const offAnalitics = document.createElement('input')
+    // const onAnalitics = document.createElement('input')
+    // const offAnalitics = document.createElement('input')
 
-    const onAnaliticsLabel = document.createElement('label')
-    const offAnaliticsLabel = document.createElement('label')
+    // const onAnaliticsLabel = document.createElement('label')
+    // const offAnaliticsLabel = document.createElement('label')
 
-    const onAnaliticsP = document.createElement('p')
-    const offAnaliticsP = document.createElement('p')
+    // const onAnaliticsP = document.createElement('p')
+    // const offAnaliticsP = document.createElement('p')
 
-    offAnaliticsP.style.margin = '0'
-    onAnaliticsP.style.margin = '0'
+    // offAnaliticsP.style.margin = '0'
+    // onAnaliticsP.style.margin = '0'
 
-    onAnalitics.name = 'analitics'
-    offAnalitics.name = 'analitics'
+    // onAnalitics.name = 'analitics'
+    // offAnalitics.name = 'analitics'
 
-    onAnalitics.id = 'on-analitics'
-    offAnalitics.id = 'off-analitics'
+    // onAnalitics.id = 'on-analitics'
+    // offAnalitics.id = 'off-analitics'
 
-    onAnaliticsLabel.setAttribute('for', 'on-analitics')
-    offAnaliticsLabel.setAttribute('for', 'off-analitics')
+    // onAnaliticsLabel.setAttribute('for', 'on-analitics')
+    // offAnaliticsLabel.setAttribute('for', 'off-analitics')
 
-    offAnaliticsLabel.innerHTML = 'Включить аналитику'
-    onAnaliticsLabel.innerHTML = 'Выключить аналитику'
+    // offAnaliticsLabel.innerHTML = 'Включить аналитику'
+    // onAnaliticsLabel.innerHTML = 'Выключить аналитику'
 
-    offAnaliticsLabel.style.paddingLeft = '5px'
-    onAnaliticsLabel.style.paddingLeft = '5px'
+    // offAnaliticsLabel.style.paddingLeft = '5px'
+    // onAnaliticsLabel.style.paddingLeft = '5px'
 
-    onAnalitics.type = 'radio'
-    offAnalitics.type = 'radio'
+    // onAnalitics.type = 'radio'
+    // offAnalitics.type = 'radio'
 
-    onAnalitics.addEventListener('change', setAnaliticsMode)
-    offAnalitics.addEventListener('change', setAnaliticsMode)
+    // onAnalitics.addEventListener('change', setAnaliticsMode)
+    // offAnalitics.addEventListener('change', setAnaliticsMode)
 
-    offAnaliticsP.appendChild(offAnalitics)
-    offAnaliticsP.appendChild(offAnaliticsLabel)
+    // offAnaliticsP.appendChild(offAnalitics)
+    // offAnaliticsP.appendChild(offAnaliticsLabel)
 
-    onAnaliticsP.appendChild(onAnalitics)
-    onAnaliticsP.appendChild(onAnaliticsLabel)
+    // onAnaliticsP.appendChild(onAnalitics)
+    // onAnaliticsP.appendChild(onAnaliticsLabel)
 
-    infoContainer.appendChild(onAnaliticsP)
-    infoContainer.appendChild(offAnaliticsP)
+    // infoContainer.appendChild(onAnaliticsP)
+    // infoContainer.appendChild(offAnaliticsP)
 
-    addShowStreamBtn(infoContainer)
+    addShowStreamBtn(infoContainer, value)
     addDeleteBtn(infoContainer, value, "#info-stream")
 }
 
@@ -143,22 +155,138 @@ function setAnaliticsMode(evt) {
     }
 }
 
-function deleteCarFromDiv(evt) {
-    const carToDelete = evt.currentTarget.value
+async function deletePerson(evt) {
+    const personToDelete = evt.currentTarget.value
     const formToHide = evt.currentTarget.formToHide
+    
+    let personId;
 
-    const form = document.querySelector(formToHide)
-    const optToDelete = document.querySelector('#'+carToDelete)
+    const response = await fetch('/get_person_info/' + personToDelete, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const text = await response.json();
+    personId = text.id
 
-    optToDelete.remove()
-    form.style.display = 'none'
+    if (personId != undefined) {
+        await fetch('/rm_person/' + personId, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+        }).then(function(response) {
+        console.log(response)
+        if(response.ok) {
+            const form = document.querySelector(formToHide)
+            const optToDelete = document.querySelector('#'+personToDelete)
+
+            optToDelete.remove()
+            form.style.display = 'none'
+        } else {
+            alert(response.json().message)
+        }
+        })
+    }
 }
 
-function showStream() {
-    const container = document.querySelector('.container-video')
-    const streamVideo = document.createElement('video')
+async function deleteCar(evt) {
+    const carToDelete = evt.currentTarget.value
+    const formToHide = evt.currentTarget.formToHide
+    
+    let carId;
 
-    container.appendChild(streamVideo)
+    const response = await fetch('/get_auto_info/' + carToDelete, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const text = await response.json();
+    carId = text.id
+    
+    if (carId != undefined) {
+        await fetch('/rm_auto/' + carId, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+        }).then(function(response) {
+        console.log(response)
+        if(response.ok) {
+            const form = document.querySelector(formToHide)
+            const optToDelete = document.querySelector('#'+carToDelete)
+
+            optToDelete.remove()
+            form.style.display = 'none'
+        } else {
+            alert(response.json().message)
+        }
+        })
+    }
+}
+
+async function deleteStream(evt) {
+    const streamToDelete = evt.currentTarget.value
+    const formToHide = evt.currentTarget.formToHide
+    
+    // console.log(streamToDelete)
+    let streamId;
+
+    const response = await fetch('/get_video_stream_info/' + streamToDelete, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const text = await response.json();
+    streamId = text.id
+    
+    if (streamId != undefined) {
+        await fetch('/rm_video_stream/' + streamId, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+        }).then(function(response) {
+        console.log(response)
+        if(response.ok) {
+            const form = document.querySelector(formToHide)
+            const optToDelete = document.querySelector('#'+streamToDelete)
+
+            optToDelete.remove()
+            form.style.display = 'none'
+        } else {
+            alert(response.json().message)
+        }
+        })
+    }
+}
+
+async function showStream(evt) {
+    const stream = evt.currentTarget.value
+    const container = document.querySelector('.container-video')
+
+    let streamVideo
+
+    const response = await fetch('/get_video_stream_info/' + stream, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+      })
+    const streamInfo = await response.json();
+    streamVideo = streamInfo.video   
+
+    const streamVideoElement = document.createElement('video')
+
+    streamVideoElement.src = streamVideo
+    streamVideo.autoplay = false
+    streamVideo.controls = true
+    streamVideo.height = 240
+    streamVideo.width = 320
+    container.appendChild(streamVideoElement)
 }
 
 async function AddPerson() {
@@ -236,89 +364,6 @@ async function AddStream() {
         })
     }
 }
-
-// добавить новый видеопоток
-
-// async function addNewStream(stream) {
-//     const response = await fetch('/add_stream', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//         body: JSON.stringify(stream)
-//       })
-// }
-
-// добавление нового человека 
-
-// async function addNewName(name) {
-//     const response = await fetch('/add_name', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//         body: JSON.stringify(name)
-//       })
-// }
-
-// добавление новой машины
-
-// async function addNewCar(car) {
-//     const response = await fetch('/add_car', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//         body: JSON.stringify(car)
-//       })
-// }
-
-// получать информацию о человеке по имени
-
-// async function getInfoByName(name) {
-//     const response = await fetch('/get_name', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//         body: JSON.stringify(name)
-//       })
-// }
-
-// получать информацию о машине по номеру
-
-// async function getInfoByCar(car) {
-//     const response = await fetch('/get_car', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//         body: JSON.stringify(car)
-//       })
-// }
-
-// удалить номер машины из бд
-
-// async function deleteCar() {
-//     const response = await fetch('/delete_car', {
-//         method: 'GET',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//       })
-// }
-
-// удалить человека из бд
-
-// async function deleteFace() {
-//     const response = await fetch('/delete_face', {
-//         method: 'GET',
-//         headers: {
-//           'Content-Type': 'application/json;charset=utf-8'
-//         },
-//       })
-// }
-
 // включить режим аналитики
 
 // async function onAnalitics() {
