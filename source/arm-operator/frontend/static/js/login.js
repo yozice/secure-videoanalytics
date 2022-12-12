@@ -138,7 +138,7 @@ async function registry(user) {
   if (text.status == 'ok') {
     window.location.href = text.message
   } else {
-    makeError(text.message)
+    makeError(text.message, '.input-data')
   }
 }
 
@@ -154,7 +154,7 @@ async function signup(user) {
   if (text.status == 'ok') {
     window.location.href = text.message
   } else {
-    makeError(text.message)
+    makeError(text.message, '.input-data')
   }
 }
 
@@ -172,8 +172,8 @@ async function LogOut() {
   })
 }
 
-function makeError(message) {
-  const container = document.querySelector('.input-data')
+function makeError(message, containerId) {
+  const container = document.querySelector(containerId)
 
     const error = document.createElement("div")
     error.setAttribute('class', 'error-server')

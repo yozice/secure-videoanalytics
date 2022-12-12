@@ -1,11 +1,10 @@
 import os
 
+from backend.models import User
+from backend.routes import auth_routes, client_routes, index_routes, video_stream_routes
 from dotenv import load_dotenv
 from flask import Flask
 from flask_login import LoginManager
-
-from backend.models import User
-from backend.routes import auth_routes, index_routes
 from global_variables import db
 
 load_dotenv()
@@ -34,6 +33,8 @@ def create_app():
 
     app.register_blueprint(index_routes.main)
     app.register_blueprint(auth_routes.auth)
+    app.register_blueprint(client_routes.client)
+    app.register_blueprint(video_stream_routes.video_stream)
 
     with app.app_context():
         db.create_all()
