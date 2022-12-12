@@ -30,8 +30,8 @@ class FaceRecognition:
             transforms.ToTensor(),
         ])
         
-        self.datadir = "data"
-        self.infopath = "data/info.csv"
+        self.datadir = "database"
+        self.infopath = "database/info.csv"
         
     def add_person(self, img: np.array, person_id: str):
         frame = Image.fromarray(img)
