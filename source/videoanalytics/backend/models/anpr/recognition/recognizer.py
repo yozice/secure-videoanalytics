@@ -39,7 +39,7 @@ class Recognizer:
         self.lpr_max_len = 9
         self.img_size = (94, 24)
 
-    def load(self, weights_path="./recognition/weights/best.pth"):
+    def load(self, weights_path="backend/models/anpr/recognition/weights/best.pth"):
         self.model = build_lprnet(
             lpr_max_len=self.lpr_max_len,
             phase=False,

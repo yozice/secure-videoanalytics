@@ -13,12 +13,11 @@ from global_variables import subprocess_dict
 app = Blueprint("analytics", __name__)
 
 
-@app.route("/predict_stream")
+@app.route("/predict_stream", methods=["POST"])
 def predict_stream():
     # get video stream url
-    url = request.form.get("url")
-
-    port = get_open_port()
+    url = request.get_json()["url"]
+    port = str(get_open_port())
 
     pipeline_req = create_pipeline_request(
         os.environ["PROCESS_PIPELINE_SCRIPT_PATH"], url, port

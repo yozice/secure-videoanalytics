@@ -1,8 +1,11 @@
-from detection.detector import Detector
-from recognition.recognizer import Recognizer
+from .detection.detector import Detector
+from .recognition.recognizer import Recognizer
+from backend import factory
+import numpy as np
+from typing import List, Any
 
 
-class Model:
+class AnprModel:
     def __init__(self):
         self.detector = Detector()
         self.recognizer = Recognizer()
@@ -11,16 +14,19 @@ class Model:
         self.detector.load()
         self.recognizer.load()
 
-    def predict(self, img):
-        coords = self.detector.predict(img)
-        h, w = img.shape[0], img.shape[1]
+    def unload(self):
+        pass
+
+    def predict(self, image: np.ndarray) -> List[Any]:
+        coords = self.detector.predict(image)
+        h, w = image.shape[0], image.shape[1]
 
         preds = [
             {
                 "type": "auto",
                 "bbox": coord,
                 "label": self.recognizer.predict(
-                    img[
+                    image[
                         int(coord[1] * h) : int(coord[3] * h),
                         int(coord[0] * w) : int(coord[2] * w),
                     ]
@@ -30,3 +36,7 @@ class Model:
         ]
 
         return preds
+
+
+def register() -> None:
+    factory.register("anpr_model", AnprModel)

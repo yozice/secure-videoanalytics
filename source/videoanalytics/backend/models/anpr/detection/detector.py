@@ -9,7 +9,7 @@ from .utils import non_max_suppression, normalize
 class Detector:
     def __init__(
         self,
-        weights_path: str = "./detection/weights/weights.torchscript",
+        weights_path: str = "backend/models/anpr/detection/weights/weights.torchscript",
         input_image_shape: Tuple[int, int] = (640, 640),
         input_image_channels: int = 3,
         batch_size: int = 10,
@@ -80,7 +80,7 @@ class Detector:
 
     def _call_model(self, images: torch.Tensor) -> torch.Tensor:
         if not self.loaded or isinstance(self.model, type(None)):
-            raise Exception('Model is not loaded')
+            raise Exception("Model is not loaded")
         batch = images.permute((0, -1, 1, 2)).to(self.device)
         images = batch.to(self.device)
         output = self.model(images)[0]

@@ -8,7 +8,7 @@ import sys
 import time
 from datetime import datetime
 from typing import Any, Optional
-
+from backend.model import InferenceModel
 import cv2
 import imagezmq
 import requests
@@ -18,7 +18,9 @@ load_dotenv(".env")
 
 sys.path.append("")
 
-from global_variables import models
+from backend.model_utils import load_models
+
+models: dict[str, InferenceModel] = load_models()
 
 
 def draw_prediction(frame, predictions):
@@ -28,11 +30,11 @@ def draw_prediction(frame, predictions):
     for prediction in predictions:
         bbox = prediction["bbox"]
         label = prediction["label"]
-        x1 = int(bbox[0] * frame.shape[0])
-        y1 = int(bbox[1] * frame.shape[1])
+        x1 = int(bbox[0] * frame.shape[1])
+        y1 = int(bbox[1] * frame.shape[0])
 
-        x2 = int(bbox[2] * frame.shape[0])
-        y2 = int(bbox[3] * frame.shape[1])
+        x2 = int(bbox[2] * frame.shape[1])
+        y2 = int(bbox[3] * frame.shape[0])
         # draw bbox
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
@@ -77,29 +79,34 @@ def process_pipeline(url: str, port: int):
         connect_to=f"{os.environ['OUTPUT_STREAM_TCP']}:{port}", REQ_REP=False
     )
     rpi_name = socket.gethostname()  # send RPi hostname with each image
-    cap = cv2.VideoCapture(url)
-    cap.set(3, 500)
-    cap.set(4, 500)
+    # cap = cv2.VideoCapture(url)
+    # cap.set(3, 500)
+    # cap.set(4, 500)
+    receiver = imagezmq.ImageHub(open_port=url, REQ_REP=False)
     # picam = VideoStream(usePiCamera=True).start()
     time.sleep(2.0)  # allow camera sensor to warm up
-
-    camera = cv2.VideoCapture(url)
-
+    # camera = cv2.VideoCapture(url)
+    # isSuccess, frame = camera.read()
+    camName, frame = receiver.recv_image()
+    jpg = cv2.imencode(".jpg", frame)[1]
     while True:
         # Capture frame-by-frame
-        isSuccess, frame = camera.read()
-
+        camName, frame = receiver.recv_image()
+        jpg = cv2.imencode(".jpg", frame)[1]
         # read not succeeded
-        if not isSuccess:
+        if not camName:
             break
+            camera = cv2.VideoCapture(url)
+            time.sleep(2)
+            isSuccess, frame = camera.read()
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        face_prediction = models["face_recognizer"].predict(frame)
+        # face_prediction = models["face_recognizer"].predict(frame)
 
-        car_prediction = models["reg_num_recognizer"].predict(frame)
+        car_prediction = models["anpr_model"].predict(frame)
 
-        draw_prediction(frame, face_prediction)
+        # draw_prediction(frame, face_prediction)
 
         draw_prediction(frame, car_prediction)
 
@@ -107,14 +114,15 @@ def process_pipeline(url: str, port: int):
         sender.send_image(rpi_name, frame)
 
         # request to integration component
-        total_pred = face_prediction + car_prediction
+        # total_pred = face_prediction + car_prediction
+        total_pred = car_prediction
 
         detection_obj = collect_detection_object(url, total_pred)
 
-        post_add_detection_request(detection_obj)
+        # post_add_detection_request(detection_obj)
 
     # When everything is done, release the capture
-    camera.release()
+    # camera.release()
 
 
 def post_add_detection_request(detection_obj):
