@@ -1,8 +1,10 @@
+from typing import Any, List
+
+import numpy as np
+from backend import factory
+
 from .detection.detector import Detector
 from .recognition.recognizer import Recognizer
-from backend import factory
-import numpy as np
-from typing import List, Any
 
 
 class AnprModel:
@@ -20,7 +22,7 @@ class AnprModel:
     def predict(self, image: np.ndarray) -> List[Any]:
         coords = self.detector.predict(image)
         h, w = image.shape[0], image.shape[1]
-
+        # if isinstance(coords, type(None)):
         preds = [
             {
                 "type": "auto",
@@ -34,6 +36,8 @@ class AnprModel:
             }
             for coord in coords
         ]
+        # else:
+        #     return []
 
         return preds
 

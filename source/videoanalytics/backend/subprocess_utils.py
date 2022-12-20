@@ -12,11 +12,12 @@ def create_subprocess(request) -> subprocess.Popen:
     """
     Creates pipeline subprocess
     """
-    sp = subprocess.Popen(
-        request,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    # sp = subprocess.Popen(
+    #     request,
+    #     stdout=subprocess.PIPE,
+    #     stderr=subprocess.PIPE,
+    # )
+    sp = subprocess.Popen(request)
     return sp
 
 

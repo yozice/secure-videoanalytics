@@ -8,10 +8,11 @@ import sys
 import time
 from datetime import datetime
 from typing import Any, Optional
-from backend.model import InferenceModel
+
 import cv2
 import imagezmq
 import requests
+from backend.model import InferenceModel
 from dotenv import load_dotenv
 
 load_dotenv(".env")
@@ -84,29 +85,27 @@ def process_pipeline(url: str, port: int):
     # cap.set(4, 500)
     receiver = imagezmq.ImageHub(open_port=url, REQ_REP=False)
     # picam = VideoStream(usePiCamera=True).start()
-    time.sleep(2.0)  # allow camera sensor to warm up
+    # time.sleep(2.0)  # allow camera sensor to warm up
     # camera = cv2.VideoCapture(url)
     # isSuccess, frame = camera.read()
-    camName, frame = receiver.recv_image()
-    jpg = cv2.imencode(".jpg", frame)[1]
+    cam_name, frame = receiver.recv_image()
+    # jpg = cv2.imencode(".jpg", frame)[1]
     while True:
         # Capture frame-by-frame
-        camName, frame = receiver.recv_image()
-        jpg = cv2.imencode(".jpg", frame)[1]
+        cam_name, frame = receiver.recv_image()
+        # jpg = cv2.imencode(".jpg", frame)[1]
         # read not succeeded
-        if not camName:
-            break
-            camera = cv2.VideoCapture(url)
-            time.sleep(2)
-            isSuccess, frame = camera.read()
+        if not cam_name:
+            # break
+            receiver = imagezmq.ImageHub(open_port=url, REQ_REP=False)
+            cam_name, frame = receiver.recv_image()
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        face_prediction = models["face_recognition"].predict(frame)
-        print(face_prediction)
+        # face_prediction = models["face_recognition"].predict(frame)
         car_prediction = models["anpr_model"].predict(frame)
 
-        draw_prediction(frame, face_prediction)
+        # draw_prediction(frame, face_prediction)
 
         draw_prediction(frame, car_prediction)
 
@@ -114,10 +113,10 @@ def process_pipeline(url: str, port: int):
         sender.send_image(rpi_name, frame)
 
         # request to integration component
-        total_pred = face_prediction + car_prediction
+        # total_pred = face_prediction + car_prediction
         # total_pred = car_prediction
 
-        detection_obj = collect_detection_object(url, total_pred)
+        # detection_obj = collect_detection_object(url, total_pred)
 
         # post_add_detection_request(detection_obj)
 

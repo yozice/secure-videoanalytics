@@ -62,30 +62,35 @@ class Recognizer:
         return img
 
     def predict(self, frame):
-        img = cv2.resize(frame, self.img_size)
-        img = self.transform(img)
-        img = np.expand_dims(img, axis=0)
-        img = Variable(torch.tensor(img, dtype=torch.float).to("cuda"))
+        if not 0 in frame.shape:
+            img = cv2.resize(frame, self.img_size)
+            img = self.transform(img)
+            img = np.expand_dims(img, axis=0)
+            img = Variable(torch.tensor(img, dtype=torch.float).to("cuda"))
 
-        prebs = self.model(img)
-        prebs = prebs.cpu().detach().numpy()
-        preb_labels = list()
-        for i in range(prebs.shape[0]):
-            preb = prebs[i, :, :]
-            preb_label = list()
-            for j in range(preb.shape[1]):
-                preb_label.append(np.argmax(preb[:, j], axis=0))
-            no_repeat_blank_label = list()
-            pre_c = preb_label[0]
-            if pre_c != len(self.CHARS) - 1:
-                no_repeat_blank_label.append(pre_c)
-            for c in preb_label:  # dropout repeate label and blank label
-                if (pre_c == c) or (c == len(self.CHARS) - 1):
-                    if c == len(self.CHARS) - 1:
-                        pre_c = c
-                    continue
-                no_repeat_blank_label.append(c)
-                pre_c = c
-            preb_labels.append(no_repeat_blank_label)
+            prebs = self.model(img)
+            prebs = prebs.cpu().detach().numpy()
+            preb_labels = list()
+            for i in range(prebs.shape[0]):
+                preb = prebs[i, :, :]
+                preb_label = list()
+                for j in range(preb.shape[1]):
+                    preb_label.append(np.argmax(preb[:, j], axis=0))
+                no_repeat_blank_label = list()
+                pre_c = preb_label[0]
+                if pre_c != len(self.CHARS) - 1:
+                    no_repeat_blank_label.append(pre_c)
+                for c in preb_label:  # dropout repeate label and blank label
+                    if (pre_c == c) or (c == len(self.CHARS) - 1):
+                        if c == len(self.CHARS) - 1:
+                            pre_c = c
+                        continue
+                    no_repeat_blank_label.append(c)
+                    pre_c = c
+                preb_labels.append(no_repeat_blank_label)
 
-        return ["".join(map(lambda x: self.CHARS[x], label)) for label in preb_labels]
+            return [
+                "".join(map(lambda x: self.CHARS[x], label)) for label in preb_labels
+            ]
+        else:
+            return [""]

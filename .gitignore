@@ -183,3 +183,4 @@ package-lock.json
 pybooks
 
 .source/videoanalytics/backend/face_recognition/weights
+source/videoanalytics/backend/models/face_recognition/weights/
